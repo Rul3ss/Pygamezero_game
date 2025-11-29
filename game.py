@@ -27,6 +27,9 @@ M_KEY_DELAY = 18
 
 IDLE_FRAMES = ['idle_1', 'idle_2', 'idle_3', 'idle_4', 'idle_5', 'idle_6',
                'idle_7', 'idle_8', 'idle_9', 'idle_10', 'idle_11', 'idle_12']
+IDLE_FRAMES_LEFT = ['idle_left_1', 'idle_left_2', 'idle_left_3', 'idle_left_4',
+                   'idle_left_5', 'idle_left_6', 'idle_left_7', 'idle_left_8',
+                   'idle_left_9', 'idle_left_10', 'idle_left_11', 'idle_left_12']
 RUN_FRAMES_RIGHT = ['bunny_1', 'bunny_2', 'bunny_3', 'bunny_4', 'bunny_5', 
                     'bunny_6', 'bunny_7', 'bunny_8']
 RUN_FRAMES_LEFT = ['bunny_left_1', 'bunny_left_2', 'bunny_left_3', 'bunny_left_4', 
@@ -44,6 +47,7 @@ class Hero:
         self.velocity_x = 0
         self.is_jumping = False
         self.is_on_platform = False
+        self.facing_right = True
         self.is_moving_right = False
         self.is_moving_left = False
         self.idle_counter = 0
@@ -55,6 +59,7 @@ class Hero:
             self.velocity_x = -HERO_SPEED
             self.is_moving_left = True
             self.is_moving_right = False
+            self.facing_right = False
             
     def move_right(self):
         if self.actor.x < WIDTH:
@@ -62,6 +67,7 @@ class Hero:
             self.velocity_x = HERO_SPEED
             self.is_moving_right = True
             self.is_moving_left = False
+            self.facing_right = True
             
     def jump(self):
         if not self.is_jumping:
@@ -99,7 +105,10 @@ class Hero:
                         
     def animate_idle(self):
         if not self.is_jumping and not self.is_moving_right and not self.is_moving_left:
-            self.actor.image = IDLE_FRAMES[self.idle_counter % len(IDLE_FRAMES)]
+            if self.facing_right:
+                self.actor.image = IDLE_FRAMES[self.idle_counter % len(IDLE_FRAMES)]
+            else:
+                self.actor.image = IDLE_FRAMES_LEFT[self.idle_counter % len(IDLE_FRAMES_LEFT)]
             self.idle_counter += 1
             
     def animate_run(self):
