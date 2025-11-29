@@ -36,7 +36,6 @@ ENEMY_FRAMES = ['burning_loop_1', 'burning_loop_2', 'burning_loop_3', 'burning_l
 
 
 class Hero:
-    """Hero character class with movement and animation"""
     
     def __init__(self, x, y):
         self.actor = Actor('idle_1')
@@ -51,7 +50,6 @@ class Hero:
         self.run_counter = 0
         
     def move_left(self):
-        """Move hero to the left"""
         if self.actor.x > 0:
             self.actor.x -= HERO_SPEED
             self.velocity_x = -HERO_SPEED
@@ -59,7 +57,6 @@ class Hero:
             self.is_moving_right = False
             
     def move_right(self):
-        """Move hero to the right"""
         if self.actor.x < WIDTH:
             self.actor.x += HERO_SPEED
             self.velocity_x = HERO_SPEED
@@ -67,19 +64,16 @@ class Hero:
             self.is_moving_left = False
             
     def jump(self):
-        """Make hero jump"""
         if not self.is_jumping:
             self.velocity_y = JUMP_STRENGTH
             self.is_jumping = True
             self.is_on_platform = False
             
     def apply_gravity(self):
-        """Apply gravity to hero"""
         self.velocity_y += GRAVITY
         self.actor.y += self.velocity_y
         
     def check_ground_collision(self):
-        """Check if hero is on the ground"""
         if self.actor.y >= HERO_Y_START:
             self.actor.y = HERO_Y_START
             self.velocity_y = 0
@@ -87,7 +81,6 @@ class Hero:
             self.is_on_platform = False
             
     def check_platform_collision(self, platforms):
-        """Check collision with platforms"""
         self.is_on_platform = False
         for platform in platforms:
             if self.velocity_y > 0:
@@ -105,13 +98,11 @@ class Hero:
                         break
                         
     def animate_idle(self):
-        """Animate idle state"""
         if not self.is_jumping and not self.is_moving_right and not self.is_moving_left:
             self.actor.image = IDLE_FRAMES[self.idle_counter % len(IDLE_FRAMES)]
             self.idle_counter += 1
             
     def animate_run(self):
-        """Animate running state"""
         if not self.is_jumping:
             if self.is_moving_right:
                 self.actor.image = RUN_FRAMES_RIGHT[self.run_counter % len(RUN_FRAMES_RIGHT)]
@@ -121,18 +112,15 @@ class Hero:
                 self.run_counter += 1
                 
     def reset_movement(self):
-        """Reset movement flags"""
         self.velocity_x = 0
         self.is_moving_right = False
         self.is_moving_left = False
         
     def draw(self):
-        """Draw hero"""
         self.actor.draw()
 
 
 class Enemy:
-    """Enemy character class with movement and animation"""
     
     def __init__(self, x, y, speed, min_x, max_x):
         self.actor = Actor('burning_loop_1')
@@ -144,7 +132,6 @@ class Enemy:
         self.counter = 0
         
     def move(self):
-        """Move enemy within territory"""
         self.actor.x += self.speed * self.direction
         
         if self.actor.x >= self.max_x:
@@ -153,21 +140,17 @@ class Enemy:
             self.direction = 1
             
     def animate(self):
-        """Animate enemy"""
         self.actor.image = ENEMY_FRAMES[self.counter % len(ENEMY_FRAMES)]
         self.counter += 1
         
     def check_collision_with_hero(self, hero):
-        """Check if enemy collides with hero"""
         return self.actor.colliderect(hero.actor)
         
     def draw(self):
-        """Draw enemy"""
         self.actor.draw()
 
 
 class Platform:
-    """Platform class for static and moving platforms"""
     
     def __init__(self, x, y, platform_type='static', speed=0, min_pos=0, max_pos=0):
         self.actor = Actor('base')
@@ -184,7 +167,6 @@ class Platform:
             self.max_y = max_pos
             
     def move(self):
-        """Move platform if it's not static"""
         if self.platform_type == 'horizontal':
             self.actor.x += self.speed * self.direction
             if self.actor.x >= self.max_x:
@@ -200,12 +182,10 @@ class Platform:
                 self.direction = 1
                 
     def draw(self):
-        """Draw platform"""
         self.actor.draw()
 
 
 class Button:
-    """Button class for clickable menu buttons"""
     
     def __init__(self, x, y, width, height, text, color):
         self.rect = Rect((x, y), (width, height))
@@ -215,15 +195,12 @@ class Button:
         self.is_hovered = False
         
     def check_hover(self, mouse_pos):
-        """Check if mouse is hovering over button"""
         self.is_hovered = self.rect.collidepoint(mouse_pos)
         
     def is_clicked(self, mouse_pos):
-        """Check if button is clicked"""
         return self.rect.collidepoint(mouse_pos)
         
     def draw(self):
-        """Draw button"""
         color = self.hover_color if self.is_hovered else self.color
         screen.draw.filled_rect(self.rect, color)
         screen.draw.text(self.text, center=self.rect.center, fontsize=30, color=(0, 0, 0))
@@ -242,7 +219,6 @@ exit_button = Button(WIDTH//2 - 100, HEIGHT//2 + 80, 200, 50, 'EXIT', (200, 100,
 
 
 def initialize_game_objects():
-    """Initialize enemies and platforms"""
     global enemies, platforms, target
     
     enemies.clear()
@@ -259,7 +235,6 @@ def initialize_game_objects():
 
 
 def reset_game():
-    """Reset game to initial state"""
     global score, hero
     score = 0
     hero = Hero(HERO_X_START, HERO_Y_START)
@@ -267,7 +242,6 @@ def reset_game():
 
 
 def animate_characters():
-    """Animate all characters"""
     if game_state == PLAYING:
         hero.animate_idle()
         hero.animate_run()
@@ -276,100 +250,81 @@ def animate_characters():
 
 
 def update():
-    """Main game update function"""
     global score, game_state, music_on, m_key_cooldown
     
     if m_key_cooldown > 0:
-        m_key_cooldown -= 1
-    
+        m_key_cooldown -= 1    
     if music_on and not music.is_playing('fantasygoodnight'):
         music.play('fantasygoodnight')
     elif not music_on:
-        music.stop()
-    
+        music.stop()    
     if game_state == MENU:
-        return
-    
+        return    
     if game_state == GAME_OVER:
         if keyboard.space:
             reset_game()
             game_state = PLAYING
         if keyboard.escape:
             game_state = MENU
-        return
-    
+        return    
     if game_state == PLAYING:
-        hero.reset_movement()
-        
+        hero.reset_movement()        
         if keyboard.left:
             hero.move_left()
         if keyboard.right:
             hero.move_right()
         if keyboard.up:
-            hero.jump()
-        
+            hero.jump()        
         hero.apply_gravity()
         hero.check_platform_collision(platforms)
         hero.check_ground_collision()
         
         for platform in platforms:
-            platform.move()
-        
+            platform.move()        
         for enemy in enemies:
             enemy.move()
             if enemy.check_collision_with_hero(hero):
-                game_state = GAME_OVER
-        
+                game_state = GAME_OVER        
         if target.colliderect(hero.actor):
             sounds.coin.play()
             target.pos = (random.randint(HERO_X_START, WIDTH - 30), 
                          random.randint(150, 300))
             score += 1
 
-
 def on_mouse_move(pos):
-    """Handle mouse movement"""
     if game_state == MENU:
         start_button.check_hover(pos)
         music_button.check_hover(pos)
         exit_button.check_hover(pos)
 
-
 def on_mouse_down(pos):
-    """Handle mouse clicks"""
     global game_state, music_on, m_key_cooldown
     
     if game_state == MENU:
         if start_button.is_clicked(pos):
             reset_game()
-            game_state = PLAYING
-            
+            game_state = PLAYING            
         elif music_button.is_clicked(pos) and m_key_cooldown == 0:
             music_on = not music_on
             m_key_cooldown = M_KEY_DELAY
-            music_button.text = f'MUSIC: {"ON" if music_on else "OFF"}'
-            
+            music_button.text = f'MUSIC: {"ON" if music_on else "OFF"}'            
         elif exit_button.is_clicked(pos):
             exit()
 
 
 def draw():
-    """Main draw function"""
     bg.draw()
     
     if game_state == MENU:
         menu_bg.draw()
         screen.draw.text('PYGAMEZERO GAME', center=(WIDTH*0.5, HEIGHT*0.2), 
                         fontsize=60, color='red', shadow=(0, 1))
-        
         start_button.draw()
         music_button.draw()
         exit_button.draw()
-        
         screen.draw.text('Use ARROW KEYS to move in game', center=(WIDTH//2, HEIGHT - 50), 
                         fontsize=20, color=FONTCOLOR)
         return
-    
     if game_state == PLAYING:
         for platform in platforms:
             platform.draw()
@@ -377,8 +332,7 @@ def draw():
             enemy.draw()
         hero.draw()
         target.draw()
-        screen.draw.text(f'Score: {score}', (15, 10), color=FONTCOLOR, fontsize=22)
-    
+        screen.draw.text(f'Score: {score}', (15, 10), color=FONTCOLOR, fontsize=22) 
     if game_state == GAME_OVER:
         screen.draw.text('GAME OVER', center=(WIDTH//2, HEIGHT//3), 
                         fontsize=60, color='red', shadow=(0, 1))
@@ -389,9 +343,6 @@ def draw():
         screen.draw.text('ESC - Main Menu', center=(WIDTH//2, HEIGHT//2 + 90), 
                         fontsize=20, color=GAME_OVER_COLOR)
 
-
 initialize_game_objects()
-
 clock.schedule_interval(animate_characters, 0.1)
-
 pgzrun.go()
